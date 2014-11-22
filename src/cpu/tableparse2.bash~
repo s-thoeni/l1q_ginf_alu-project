@@ -1,0 +1,10 @@
+#!/bin/bash
+
+awk -F"|" 'NR==FNR{ a[$1]=$2; next } NR!=FNR{ lines[$3]=$0; } 
+END {  
+for(line in lines) { 
+for(x in a) { 
+printf("x= %s line= %s a[x]= %s lines[line]= %s\n", x, line, a[x], lines[line]);
+}
+}
+} ' /tmp/named-tbl.txt /tmp/tbl2.txt  

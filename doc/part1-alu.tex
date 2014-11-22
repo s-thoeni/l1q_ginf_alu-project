@@ -1,0 +1,187 @@
+\documentclass[a4paper]{article} 
+
+% deutsche Sonderzeichen benutzen
+% deutsche Trennregel
+\usepackage[german]{babel}
+
+% wegen deutschen Umlauten
+\usepackage[utf8]{inputenc}
+
+\usepackage[T1]{fontenc}
+% hat was mit Abstaenden zu tun
+%\frenchspacing
+
+%\usepackage{subfigure}
+
+
+\usepackage{dashrule}
+\usepackage{caption, subcaption}
+\usepackage{calc}
+\usepackage{multicol}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+%multiple rows in table
+\usepackage{multirow}
+\usepackage{latexsym}
+
+\usepackage{tikz}
+\usepackage{tikz-qtree}
+%\usetikzlibrary{shapes, arrows, decorations.pathmorphing,circuits}
+\usepackage{tikz-timing}
+% Truth table produced by http://www.kwi.dk/projects/php/truthtable/? and modified
+\usetikzlibrary{trees}
+
+% haleluia: Palatino Font
+\usepackage{palatino}
+
+
+
+%we very much like \xhookleftarrow
+\usepackage{empheq}
+
+%we very much like listings
+%\usepackage{listings}
+
+%we very much like graphics, oh yes
+%\usepackage{graphicx}
+
+% dirtree tikz mode
+\makeatletter
+\newcount\dirtree@lvl
+\newcount\dirtree@plvl
+\newcount\dirtree@clvl
+\def\dirtree@growth{%
+  \ifnum\tikznumberofcurrentchild=1\relax
+  \global\advance\dirtree@plvl by 1
+  \expandafter\xdef\csname dirtree@p@\the\dirtree@plvl\endcsname{\the\dirtree@lvl}
+  \fi
+  \global\advance\dirtree@lvl by 1\relax
+  \dirtree@clvl=\dirtree@lvl
+  \advance\dirtree@clvl by -\csname dirtree@p@\the\dirtree@plvl\endcsname
+  \pgf@xa=1cm\relax
+  \pgf@ya=-1cm\relax
+  \pgf@ya=\dirtree@clvl\pgf@ya
+  \pgftransformshift{\pgfqpoint{\the\pgf@xa}{\the\pgf@ya}}%
+  \ifnum\tikznumberofcurrentchild=\tikznumberofchildren
+  \global\advance\dirtree@plvl by -1
+  \fi
+}
+
+\tikzset{
+  dirtree/.style={
+    growth function=\dirtree@growth,
+    every node/.style={anchor=north},
+    every child node/.style={anchor=west},
+    edge from parent path={(\tikzparentnode\tikzparentanchor) |- (\tikzchildnode\tikzchildanchor)}
+  }
+}
+\makeatother
+
+
+\usepackage{fancyhdr}                     %Declares the package fancyhdr
+\pagestyle{fancy}                         %Forces the page to use the fancy template
+\fancyhead[L]{GInf Project Part ALU}
+\fancyhead[R]{21.11.2014}
+%\fancyfoot[L]{\includegraphics[width=\textwidth]{../../pics/students.png}}
+\fancyfoot[C]{}
+
+% \fancyfoot[L]{\begin{picture}(3,2)(80,80)
+% %\IfFileExists{Tex-Tmpl.png} 
+% {
+% \includegraphics[scale=0.2]{../Logo_Berner_Fachhochschule.pdf}}{}
+% \end{picture}}
+
+\newcommand{\textline}{\vspace*{1cm}\dotfill}
+
+% provides hooks to do actions on every page
+\usepackage{everypage}
+
+%\usepackage{algorithmic}
+%\usepackage{algorithm}
+\usepackage{listings}
+
+
+
+% \newcommand*\BFHLogo{%
+%   \tikz{%[remember picture,overlay] {%
+%     % \draw[thick,red, decorate,decoration={snake}]
+%     % (current page.north west) rectangle (current page.south east);
+%     \node (current page.south west) {\includegraphics[scale=0.4]{../Logo_Berner_Fachhochschule.pdf}} ;
+%   }%
+% }
+\usepackage{graphicx}
+
+\begin{document} 
+%
+%
+%\AddEverypageHook{\BFHLogo}
+\begin{center}
+  \Large \textsc{\underline{ALU: Aritmetic \& Logic Unit}}
+\end{center}
+
+\begin{description}
+\item[Goal:] Implement all empty function-bodies in \texttt{alu.c}. Don't change anything outside the function bodies
+\item[File layout:]\qquad\\
+\tikzstyle{every node}=[draw=black,thick,anchor=west]
+\tikzstyle{selected}=[draw=red,fill=red!30]
+\tikzstyle{optional}=[dashed,fill=gray!50]
+\begin{tikzpicture}[%
+  grow via three points={one child at (0.5,-0.7) and
+  two children at (0.5,-0.7) and (0.5,-1.4)},
+  edge from parent path={(\tikzparentnode.south) |- (\tikzchildnode.west)}]
+  \node {alu-project}
+    child { node {makefile}}		
+    child { node {src}		
+    child { node {include}}		
+    child { node {memory}}
+    child { node {register}}
+    child { node [selected] {alu}
+      child { node {alu-main.c}}
+      child { node [optional] {alu.c}}
+    }
+    child [missing] {}				
+    child [missing] {}				
+    child { node  {test}
+      child { node {alu-test.txt}}
+      child { node {alu-test-results.txt}}
+    }
+};
+\end{tikzpicture}
+
+%  \begin{tikzpicture}[grow=right]
+%  \tikzset{level distance=60pt,sibling distance=18pt}
+% % \tikzset{every leaf node/.style=\it}
+%   \tikzset{execute at begin node=\strut}
+% %  \Tree [.<project root> [.src  [.alu alu-main.c alu.c [.alu sdf s df ] [.alu-main.c ] ] ] ]
+% %  \Tree [.<project root> [.src   [.alu alu-main.c alu.c  ]  ] ]
+  
+  
+%   \tikzset{frontier/.style={distance from root=250pt}}
+%   \Tree 
+%   [.<project\ root>   [.src [.include alu.h alu-opcodes.h ] makefile  [.alu \textbf{alu.c} alu-main.c ] ] ]
+ 
+
+% %[.include alu.h alu-opcodes.h ]
+% \end{tikzpicture}
+
+\item[Compiling:] \texttt{make alu-main} compiles \textbf{alu-main}
+\item[Read-eval-loop:] \texttt{./alu-main} gives you an empty prompt. The program is reading from  \texttt{stdio} , hence waiting for input from your keyboard. A \texttt{Ctrl-D} simulates an EOF (End-of-file) and the program quits. While reading form the \texttt{stdio} you can enter any of these commands:
+  \begin{itemize}
+  \item \texttt{reset}
+  \item \texttt{add <HH> <HH>}
+  \item \texttt{sub <HH> <HH>}
+  \item \texttt{or <HH> <HH>}
+  \item \texttt{and <HH> <HH>}
+  \item \texttt{xor <HH> <HH>}
+  \item \texttt{neg\_a <HH>}
+  \item \texttt{neg\_b <HH>}
+  \item \texttt{not\_a <HH>}
+  \item \texttt{not\_b <HH>}
+  \end{itemize}
+\item[Testing:] \texttt{make alu-test} compiles, runs and tests the alu
+\item[Time:] Two weeks, i.e. 5.12.2014 at the beginning of the lecture you give in a print-out from \texttt{alu.c}.
+\item[Delivery:] \texttt{alu.c} \emph{must be printed two-on-one page, with pretty-print} (use a2ps or enscript, look into makefile for examples)
+\end{description}
+
+\end{document}

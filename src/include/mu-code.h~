@@ -1,0 +1,102 @@
+/*
+  mu-code.h
+  bho1 28.12.2006
+  bho1 14.12.2009 Apparently you have to add cpu_operation->function entries implemented in mu-code here. Is there a way to circumvent this?? How about to declare all functions even if not implemented? Or with empty implementation?
+  GPL
+
+*/
+
+
+/*
+  mov r1, r2
+*/
+void mov_register_direkt_2_register_direkt();
+
+/*
+  mov r1, [r2]
+*/
+void mov_register_direkt_2_register_indirekt();
+
+/*
+  {"mov #value, r", CPU_OPCODE_MOV_IMMEDIATE_REGISTER, mov_immediate_2_register},
+*/
+void mov_immediate_2_register();
+
+/*
+  
+  {"jmp reg|adr", CPU_OPCODE_JMP, jmp_reg_or_adr},
+
+  Sample:
+  jmp    reg|adr x reg
+  010000    0    x rr
+
+  010000 0x01 ; jmp bx
+  010000 1x1111000011110000 ; jmp 0xF0F0
+  
+*/
+void jmp_reg_or_adr();
+void jmp_conditional();
+void jmp_flag_set();
+/*
+  Flags clear jump
+  {"jnx reg|adr", CPU_OPCODE_JNF, jmp_flag_not_set},
+*/
+void jmp_flag_not_set();
+
+
+
+/*
+  lots of ALU ops
+*/
+void cpu_opcode_add();
+void cpu_opcode_sub();
+void cpu_opcode_adc();
+void cpu_opcode_sbb();
+void cpu_opcode_inc();
+void cpu_opcode_dec();
+void cpu_opcode_neg();
+void cpu_opcode_cmp();
+
+/*
+  Stack instructions
+*/
+
+/*
+  push
+  {"push rx", CPU_OPCODE_PUSH, cpu_push},
+*/
+void cpu_push();
+
+/*
+  pop
+  {"pop rx", CPU_OPCODE_POP, cpu_pop},
+*/
+void cpu_pop();
+
+/*
+  call
+  {"call adr", CPU_OPCODE_CALL, cpu_call},
+*/
+void cpu_call();
+
+/* 
+   Return 
+*/
+void cpu_return();
+
+/*
+  { "reset", CPU_OPCODE_RESET, cpu_reset}
+*/
+void cpu_reset();
+
+/*
+  nop
+  {"nop", CPU_OPCODE_NOP, cpu_nop}
+*/
+void cpu_nop();
+
+/*
+  Flags
+*/
+void cpu_opcode_sett();
+  

@@ -1,0 +1,7 @@
+#!/bin/bash
+
+OBELISK=$(mktemp /tmp/output.obelisk.XXXXXXXXXX)
+awk '/See also:/ { readline; print "\n"} $0!~/See also:/{ printf"%s|",$0}' src/cpu/obelisk.demon.co.uk_6502.txt >$OBELISK
+
+
+

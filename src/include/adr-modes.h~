@@ -1,0 +1,6 @@
+/*
+  adr-modes.h
+  #initial 27.12.2011
+*/
+
+void proc_absolut(char*);

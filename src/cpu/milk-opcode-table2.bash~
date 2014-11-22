@@ -1,0 +1,7 @@
+#!/bin/bash
+awk -F"\t" 'BEGIN { while (getline < "named-commands.txt") { ass[$1]= $3}} {for( i=2; i<17; i++){ name = substr($i,1,3); if(name!~"\?\?\?"){ printf("%2x %s %s %s\n",(NR-1)*16+i-2, name, ass[name],$i);}}}' doc/opcode-table2.txt 
+
+
+#
+# script generates this table:
+# 

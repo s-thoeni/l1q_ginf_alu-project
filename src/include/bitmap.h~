@@ -1,0 +1,34 @@
+/*
+  bitmap.h
+  bho1 - init 29.12.2011
+  GPL
+
+  simulating a video chip
+
+*/
+
+#include "SDL.h"
+
+SDL_Surface *init_display();
+
+void exit_display();
+
+void clear_screen();
+
+void dot(unsigned int x, unsigned int y, int color);
+void draw_memory(char* mem[]);
+
+int pixelnr(unsigned int x, unsigned int y);
+
+int bitpos(unsigned int x, unsigned int y);
+
+  int adr(unsigned int x, unsigned int y);
+
+  void show_memory(char* memory[], SDL_Surface *le_screen);
+
+void poke(unsigned int x, unsigned int y, char* memory[], int value);
+
+
+
+
+

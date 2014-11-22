@@ -1,0 +1,3 @@
+#define SNDFMT Uint8
+void Callback (void *, SNDFMT *, int); 
+
