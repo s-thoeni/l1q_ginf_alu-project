@@ -80,8 +80,7 @@ void alu_parse_line(char *cmd_line){
       alu(ALU_OP_NEG_B, rega, regb, accumulator, flags);
     }
     if(!strcmp(opcode,"not_a")){
-      ldhex2register(operand1, rega);
-      alu(ALU_OP_NOT_A, rega, regb, accumulator, flags);
+      ldhex2register(operand1accumulator, flags);
     }
     if(!strcmp(opcode,"not_b")){
       ldhex2register(operand1, regb);

@@ -73,7 +73,6 @@ void coflagging(char* flags, char *accumulator, char *rega, char *regb){
     setOverflowflag(flags);
   else
     clearOverflowflag(flags);
-
 }
 
 
@@ -345,6 +344,24 @@ void op_neg_b(char rega[], char regb[], char accumulator[], char flags[]){
   asl
 */
 void op_alu_asl(char regina[], char reginb[], char regouta[], char flags[]){
+  int i;
+  // Reset carry first! 
+  m[c] = '0';
+  // First bit will always be '0':
+  regouta[REG_WIDTH-1] = '0';
+
+  for (i = REG_WIDTH-1; i >= 0; i--) {
+    if(i==0 && regina[i] == '1')
+      m[c] = '1';
+    else
+      regouta[i-1] = regina[i];
+  }
+
+  //Carryflag TODO: Export to Method
+  if(m[c] == '0')
+    clearCarryflag(flags);
+  else
+    setCarryflag(flags);
 }
 
 /*
