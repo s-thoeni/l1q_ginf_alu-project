@@ -100,6 +100,7 @@ static char xor(char a, char b){
   return ((a =='1' || b =='1') && a != b ) ? '1' : '0';
 }
 
+
 /*
   Halfadder: addiert zwei character p,q und schreibt in 
   den Mue-memory das summen-bit und das carry-bit.
@@ -117,7 +118,7 @@ void op_alu_reset(char rega[], char regb[], char accumulator[], char flags[]){
   int i;
   /* clear rega, regb, accumulator, flags */
   for(i=0; i<REG_WIDTH; i++)
-    rega[i] = regb[i] = accumulator[i] = flags[i] = '0';
+    m[i] = rega[i] = regb[i] = accumulator[i] = flags[i] = '0';
 }
 
 /* 
@@ -143,8 +144,7 @@ void full_adder(char pbit, char qbit, char cbit){
 */
 void one_complement(char reg[]){
   int i;
-  //Set carry to 0:
-  for (i = 0; reg[i] != 0; i++) {
+  for (i = 0; i< REG_WIDTH; i++) {
     reg[i] = (reg[i] == '0') ? '1' : '0';
   }
 }
@@ -160,8 +160,12 @@ void two_complement(char reg[]){
   // add 1 to reg: Iterate from behind, set 1 to 0 and 0 to 1. exit on first 0 
   int i; 
   for (i = REG_WIDTH-1; i>=0; i--) {
-    reg[i] = (reg[i] == '1') ? '0' : '1';
-    if (reg[i] == '0') break;
+    if(reg[i] == '1'){
+      reg[i] = '0';
+    }else{
+      reg[i] = '1';
+	break;
+    }
   }
 }
 
@@ -170,7 +174,7 @@ void two_complement(char reg[]){
   For op_code ADD set carry argument = '0'
   For op_code ADC set carry argument = currentCarry
  */
-static void op_add_generic(char rega[], char regb[], char accumulator[], char flags[], char carry){
+static void add_generic(char rega[], char regb[], char accumulator[], char flags[], char carry){
   //Set carry flag to whatever it is supposed to be
   m[c] = carry;
 
@@ -191,14 +195,14 @@ static void op_add_generic(char rega[], char regb[], char accumulator[], char fl
 
 /*
   Die Werte in Register rega und Register regb werden addiert, das
-  Resultat wird in Register accumulator geschrieben. Die Flags cflag, 
+  wird in Register accumulator geschrieben. Die Flags cflag, 
   oflag, zflag und sflag werden entsprechend gesetzt
   
   accumulator := rega + regb
 */
 void op_add(char rega[], char regb[], char accumulator[], char flags[]){
   // Call the generic add function with ignored carry
-  op_add_generic(rega,regb,accumulator,flags,'0');
+  add_generic(rega,regb,accumulator,flags,'0');
 }
 
 /*
@@ -216,7 +220,7 @@ void op_add(char rega[], char regb[], char accumulator[], char flags[]){
 */
 void op_adc(char rega[], char regb[], char accumulator[], char flags[]){
   // Call the generic add function this time with carry!
-  op_add_generic(rega, regb, accumulator, flags, getCarryflag(flags));
+  add_generic(rega, regb, accumulator, flags, getCarryflag(flags));
 }
 
 /*
@@ -227,15 +231,12 @@ void op_adc(char rega[], char regb[], char accumulator[], char flags[]){
   accumulator := rega - regb = rega + NOT(regb) + 1
 */
 void op_sub(char rega[], char regb[], char accumulator[], char flags[]){
-  two_complement(regb);
+  one_complement(regb);
   
-  op_add(rega,regb,accumulator,flags);
-  
+  add_generic(rega,regb,accumulator,flags, '1');
+
   // We want the positive representation of b in our register!
-  two_complement(regb);
-  
-  //TODO: Carry SUB 00 00? Macht eig. kein sinn oder???
-  //TODO: Bei SUB 80 80 sollte ein overflow gesetzt sein oder??
+  one_complement(regb);
 }
 
 /*
@@ -251,12 +252,12 @@ void op_sub(char rega[], char regb[], char accumulator[], char flags[]){
 
 */
 void op_alu_sbc(char rega[], char regb[], char accumulator[], char flags[]){
-  two_complement(regb);
+  one_complement(regb);
   
-  op_adc(rega,regb,accumulator,flags);
+  add_generic(rega,regb,accumulator,flags, getCarryflag(flags));
   
   // We want the positive representation of b in our register!
-  two_complement(regb);
+  one_complement(regb);
 }
 
 /*
@@ -264,7 +265,7 @@ void op_alu_sbc(char rega[], char regb[], char accumulator[], char flags[]){
   Result is stored in accu and z,s flags are set accoringly
  
  */
-static void op_anylog(char rega[], char regb[], char accumulator[], char flags[], char (*logFn)(char,char)){
+static void apply_logic(char rega[], char regb[], char accumulator[], char flags[], char (*logFn)(char,char)){
   int i;
   for (i = 0; i < REG_WIDTH; i++) {
     accumulator[i] = (*logFn)(rega[i], regb[i]);
@@ -280,32 +281,28 @@ static void op_anylog(char rega[], char regb[], char accumulator[], char flags[]
   accumulator := rega AND regb
 */
 void op_and(char rega[], char regb[], char accumulator[], char flags[]){
-  op_anylog(rega,regb,accumulator,flags,&and);
+  apply_logic(rega,regb,accumulator,flags,&and);
+}
+
+/*
+  accumulator := rega OR regb
+*/
+void op_or(char rega[], char regb[], char accumulator[], char flags[]){
+  apply_logic(rega,regb,accumulator,flags,&or);
+}
+
+/*
+  accumulator := rega OR regb
+*/
+void op_xor(char rega[], char regb[], char accumulator[], char flags[]){
+  apply_logic(rega,regb,accumulator,flags,xor);
 }
 
 /*
   Die Werte in Register rega und Register regb werden logisch geORt, 
   das Resultat wird in Register accumulator geschrieben. 
-  Die Flags zflag und sflag werden entsprechend gesetzt
-  
-  accumulator := rega OR regb
-*/
-void op_or(char rega[], char regb[], char accumulator[], char flags[]){
-  op_anylog(rega,regb,accumulator,flags,&or);
-} 
-
-/*
   Die Werte in Register rega und Register regb werden logisch geXORt,
   das Resultat wird in Register accumulator geschrieben. 
-  Die Flags zflag und sflag werden entsprechend gesetzt
-  
-  accumulator := rega XOR regb
-*/
-void op_xor(char rega[], char regb[], char accumulator[], char flags[]){
-  op_anylog(rega,regb,accumulator,flags,&xor);
-}
-
-/*
   Einer-Komplement von Register rega
   rega := not(rega)
 */
@@ -344,24 +341,16 @@ void op_neg_b(char rega[], char regb[], char accumulator[], char flags[]){
   asl
 */
 void op_alu_asl(char regina[], char reginb[], char regouta[], char flags[]){
-  int i;
-  // Reset carry first! 
-  m[c] = '0';
   // First bit will always be '0':
   regouta[REG_WIDTH-1] = '0';
 
+  int i;
   for (i = REG_WIDTH-1; i >= 0; i--) {
     if(i==0 && regina[i] == '1')
-      m[c] = '1';
+      setCarryflag(flags);
     else
       regouta[i-1] = regina[i];
   }
-
-  //Carryflag TODO: Export to Method
-  if(m[c] == '0')
-    clearCarryflag(flags);
-  else
-    setCarryflag(flags);
 }
 
 /*
@@ -369,12 +358,26 @@ void op_alu_asl(char regina[], char reginb[], char regouta[], char flags[]){
   lsr
 */
 void op_alu_lsr(char regina[], char reginb[], char regouta[], char flags[]){
+  // First bit will always be '0':
+  regouta[0] = '0';
+
+  int i;
+  for (i = 1; i <= REG_WIDTH-2; i++) {
+      regouta[i+1] = regina[i];
+  }
 }
 /*
   rotate 
   rotate left
 */
 void op_alu_rol(char regina[], char reginb[], char regouta[], char flags[]){
+  //First bit equals last bit from regina
+  regouta[REG_WIDTH-1] = regina[0];
+  
+  int i;
+  for (i = 0; i <= REG_WIDTH-2; i++) {
+      regouta[i+1] = regina[i];
+  }
 }
 
 /*
@@ -382,8 +385,14 @@ void op_alu_rol(char regina[], char reginb[], char regouta[], char flags[]){
   rotate right
   Move each of the bits in  A one place to the right. Bit 7 is filled with the current value of the carry flag whilst the old bit 0 becomes the new carry flag value.
 */
-  void op_alu_ror(char regina[], char reginb[], char regouta[], char flags[]){
+void op_alu_ror(char regina[], char reginb[], char regouta[], char flags[]){
+  //First bit equals last bit from regina
+  regouta[0] = regina[REG_WIDTH-1];
   
+  int i;
+  for (i = REG_WIDTH-1; i >= 2; i--) {
+      regouta[i-1] = regina[i];
+  }
 }
 
 /*
@@ -452,7 +461,7 @@ void alu(unsigned int alu_opcode, char reg_in_a[], char reg_in_b[], char reg_out
     op_alu_ror(reg_in_a, reg_in_b, reg_out_accu, (flags==NULL)?dummyflags:flags);
     break;
   case ALU_OP_RESET :
-    op_alu_reset(reg_in_a, reg_in_b, reg_out_accu, (flags==NULL)?dummyflags:flags);   
+    op_alu_reset(reg_in_a, reg_in_b, reg_out_accu, (flags==NULL)?dummyflags:flags);
     break;
   default:
     printf("ALU(%i): Invalide operation %i selected", alu_opcode, alu_opcode); 

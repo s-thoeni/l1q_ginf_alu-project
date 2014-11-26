@@ -60,6 +60,9 @@ void alu_parse_line(char *cmd_line){
     if(!strcmp(opcode,"add")){
       alu(ALU_OP_ADD, rega, regb, accumulator, flags);
     }
+    if(!strcmp(opcode,"adc")){
+      alu(ALU_OP_ADD_WITH_CARRY, rega, regb, accumulator, flags);
+    }
     if(!strcmp(opcode,"sub"))
       alu(ALU_OP_SUB, rega, regb, accumulator, flags);
     if(!strcmp(opcode,"and"))
@@ -80,11 +83,16 @@ void alu_parse_line(char *cmd_line){
       alu(ALU_OP_NEG_B, rega, regb, accumulator, flags);
     }
     if(!strcmp(opcode,"not_a")){
-      ldhex2register(operand1accumulator, flags);
+      ldhex2register(operand1, rega);
+      alu(ALU_OP_NOT_A, rega, regb, accumulator, flags);
     }
     if(!strcmp(opcode,"not_b")){
       ldhex2register(operand1, regb);
       alu(ALU_OP_NOT_B, rega, regb, accumulator, flags);
+    }
+    if(!strcmp(opcode,"asl")){
+      ldhex2register(operand1, rega);
+      alu(ALU_OP_ASL, rega, regb, accumulator, flags);
     }
     printf("%s %s\n", opcode, operand1);
     break;
