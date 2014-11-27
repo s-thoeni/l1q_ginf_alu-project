@@ -362,7 +362,7 @@ void op_alu_lsr(char regina[], char reginb[], char regouta[], char flags[]){
   regouta[0] = '0';
 
   int i;
-  for (i = 1; i <= REG_WIDTH-2; i++) {
+  for (i = 0; i <= REG_WIDTH-2; i++) {
       regouta[i+1] = regina[i];
   }
 }

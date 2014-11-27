@@ -94,6 +94,10 @@ void alu_parse_line(char *cmd_line){
       ldhex2register(operand1, rega);
       alu(ALU_OP_ASL, rega, regb, accumulator, flags);
     }
+    if(!strcmp(opcode,"lsr")){
+      ldhex2register(operand1, rega);
+      alu(ALU_OP_LSR, rega, regb, accumulator, flags);
+    }
     printf("%s %s\n", opcode, operand1);
     break;
   case 1:
