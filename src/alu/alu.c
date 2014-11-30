@@ -10,7 +10,10 @@
    bho1 6.11.2011 - rewrite flags: adding flags as functional parameter. Now alu is truly a function
    bho1 26.11.2012 - remove bit declaration from op_alu_asl and op_alu_ror as they are unused (this may change later)
    bho1 20.9.2014 cleaned
-   STh  21.11.2014 - Adding full-adder
+   thons1 21.11.2014 - Adding full-adder
+   thons1 24.11.2014 - Implementing ADD, ADC, SUB, SBC
+   thons1 27.11.2014 - Implementing bitwise operations
+   thons1 29.11.2014 - General rework and cleanup. Ready for rollout
    
    GPL applies
 
@@ -61,13 +64,15 @@ void zsflagging(char* flags,char *acc){
 	clearSignflag(flags);
 }
 
-void coflagging(char* flags, char *accumulator, char *rega, char *regb){
-  //Carryflag
+void carryflagging(char* flags){
   if(m[c] == '0')
     clearCarryflag(flags);
   else
     setCarryflag(flags);
+}
 
+void coflagging(char* flags, char *accumulator, char *rega, char *regb){
+  carryflagging(flags);
   //Overflowflag
   if(rega[0] == regb[0] && regb[0] != accumulator[0])
     setOverflowflag(flags);
@@ -75,12 +80,11 @@ void coflagging(char* flags, char *accumulator, char *rega, char *regb){
     clearOverflowflag(flags);
 }
 
-
 /*
   logic and of 2 bit
   returns a AND b
  */
-static char and(char a, char b){
+char and(char a, char b){
   return (a == '1' && b == '1') ? '1' : '0';
 }
 
@@ -88,7 +92,7 @@ static char and(char a, char b){
   logic or of 2 bit
   returns a OR b
  */
-static char or(char a, char b){
+char or(char a, char b){
   return (a =='1' || b =='1' ) ? '1' : '0';
 }
 
@@ -96,10 +100,9 @@ static char or(char a, char b){
   logic xor of 2 bit
   returns a XOR b
  */
-static char xor(char a, char b){
+char xor(char a, char b){
   return ((a =='1' || b =='1') && a != b ) ? '1' : '0';
 }
-
 
 /*
   Halfadder: addiert zwei character p,q und schreibt in 
@@ -343,14 +346,14 @@ void op_neg_b(char rega[], char regb[], char accumulator[], char flags[]){
 void op_alu_asl(char regina[], char reginb[], char regouta[], char flags[]){
   // First bit will always be '0':
   regouta[REG_WIDTH-1] = '0';
+  m[c] = regina[0];
 
   int i;
-  for (i = REG_WIDTH-1; i >= 0; i--) {
-    if(i==0 && regina[i] == '1')
-      setCarryflag(flags);
-    else
+  for (i = REG_WIDTH-1; i > 0; i--) {
       regouta[i-1] = regina[i];
   }
+
+  carryflagging(flags);
 }
 
 /*
@@ -371,13 +374,15 @@ void op_alu_lsr(char regina[], char reginb[], char regouta[], char flags[]){
   rotate left
 */
 void op_alu_rol(char regina[], char reginb[], char regouta[], char flags[]){
-  //First bit equals last bit from regina
-  regouta[REG_WIDTH-1] = regina[0];
-  
+  regouta[REG_WIDTH-1] = getCarryflag(flags);
+  m[c] = regina[0];
+
   int i;
-  for (i = 0; i <= REG_WIDTH-2; i++) {
-      regouta[i+1] = regina[i];
+  for (i = REG_WIDTH -1; i>0; i--) {
+      regouta[i-1] = regina[i];
   }
+
+  carryflagging(flags);
 }
 
 /*
@@ -387,22 +392,15 @@ void op_alu_rol(char regina[], char reginb[], char regouta[], char flags[]){
 */
 void op_alu_ror(char regina[], char reginb[], char regouta[], char flags[]){
   //First bit equals last bit from regina
-  regouta[0] = regina[REG_WIDTH-1];
+  regouta[0] = getCarryflag(flags);
+  m[c] = regina[REG_WIDTH -1];
   
   int i;
-  for (i = REG_WIDTH-1; i >= 2; i--) {
-      regouta[i-1] = regina[i];
+  for (i = 0; i < REG_WIDTH-1; i++) {
+      regouta[i+1] = regina[i];
   }
-}
-
-/*
-  clear mue_memory
-*/
-void alu_reset(){
-  int i;
   
-  for(i=0;i<max_mue_memory;i++)
-    m[i] = '0';
+  carryflagging(flags);
 }
 
 /*
