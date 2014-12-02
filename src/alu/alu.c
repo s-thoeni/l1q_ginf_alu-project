@@ -17,7 +17,7 @@
    
    GPL applies
 
-   -->> Stefan Thöni  <<--
+   -->> Stefan Thoeni  <<--
 */
 
 #include <stdio.h>
@@ -183,8 +183,6 @@ static void add_generic(char rega[], char regb[], char accumulator[], char flags
 
   int i;
   for (i = REG_WIDTH-1; i>=0; i--) {
-    //This printf is for debugging purposes only!
-    // printf("Adding: %c,%c and carry:%c\n", rega[i], regb[i], m[c]);
     full_adder(rega[i], regb[i], m[c]);
     
     //Store the sum from full_adder
@@ -204,7 +202,6 @@ static void add_generic(char rega[], char regb[], char accumulator[], char flags
   accumulator := rega + regb
 */
 void op_add(char rega[], char regb[], char accumulator[], char flags[]){
-  // Call the generic add function with ignored carry
   add_generic(rega,regb,accumulator,flags,'0');
 }
 
@@ -218,11 +215,8 @@ void op_add(char rega[], char regb[], char accumulator[], char flags[]){
   oflag, zflag und sflag werden entsprechend gesetzt
   
   accumulator := rega + regb + carry-flag
-
-  FIXME: Not referenced in alu-main.c
 */
 void op_adc(char rega[], char regb[], char accumulator[], char flags[]){
-  // Call the generic add function this time with carry!
   add_generic(rega, regb, accumulator, flags, getCarryflag(flags));
 }
 
@@ -288,6 +282,10 @@ void op_and(char rega[], char regb[], char accumulator[], char flags[]){
 }
 
 /*
+  Die Werte in Register rega und Register regb werden logisch geORt, 
+  das Resultat wird in Register accumulator geschrieben. 
+  Die Flags zflag und sflag werden entsprechend gesetzt
+ 
   accumulator := rega OR regb
 */
 void op_or(char rega[], char regb[], char accumulator[], char flags[]){
@@ -295,6 +293,10 @@ void op_or(char rega[], char regb[], char accumulator[], char flags[]){
 }
 
 /*
+  Die Werte in Register rega und Register regb werden logisch geXORt, 
+  das Resultat wird in Register accumulator geschrieben. 
+  Die Flags zflag und sflag werden entsprechend gesetzt
+ 
   accumulator := rega OR regb
 */
 void op_xor(char rega[], char regb[], char accumulator[], char flags[]){
@@ -302,10 +304,6 @@ void op_xor(char rega[], char regb[], char accumulator[], char flags[]){
 }
 
 /*
-  Die Werte in Register rega und Register regb werden logisch geORt, 
-  das Resultat wird in Register accumulator geschrieben. 
-  Die Werte in Register rega und Register regb werden logisch geXORt,
-  das Resultat wird in Register accumulator geschrieben. 
   Einer-Komplement von Register rega
   rega := not(rega)
 */
@@ -313,7 +311,9 @@ void op_not_a(char rega[], char regb[], char accumulator[], char flags[]){
   one_complement(rega);
 }
 
-/* Einer Komplement von Register regb */
+/* Einer Komplement von Register regb
+   regb := not(regb)
+ */
 void op_not_b(char rega[], char regb[], char accumulator[], char flags[]){
   one_complement(regb);
 }
